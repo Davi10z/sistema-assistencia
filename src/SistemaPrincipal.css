@@ -1,0 +1,104 @@
+.layout-principal {
+  min-height: 100vh;
+  background-color: #F4F7FC; /* Fundo cinza claro */
+  display: flex;
+  flex-direction: column;
+}
+
+.cabecalho {
+  background-color: #2D68C4;
+  color: white;
+  padding: 20px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.detalhe-amarelo {
+  width: 10px;
+  height: 35px;
+  background-color: #FFD100;
+}
+
+.cabecalho h1 {
+  font-size: 26px;
+  margin: 0;
+}
+
+.cabecalho h1 i {
+  background-color: #009640;
+  padding: 0 10px;
+  border-radius: 5px;
+  font-style: italic;
+}
+
+.info-usuario {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 14px;
+}
+
+.info-usuario strong {
+  color: #FFD100;
+}
+
+.btn-sair {
+  background-color: white;
+  color: red;
+  border: none;
+  padding: 5px 15px;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-sair:hover {
+  background-color: #ffe6e6;
+}
+
+.caixa-menus {
+  background-color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 20px;
+}
+
+.menu-btn {
+  background: none;
+  border: none;
+  padding: 15px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  color: grey;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: 0.3s;
+}
+
+.menu-btn:hover {
+  color: #2D68C4;
+}
+
+.menu-btn.ativo {
+  color: #2D68C4;
+  border-bottom: 3px solid #2D68C4;
+}
+
+.conteudo-aba {
+  padding: 40px;
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+}

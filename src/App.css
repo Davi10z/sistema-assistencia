@@ -1,0 +1,99 @@
+.tela-fundo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+}
+
+.cartao-login {
+  background-color: white;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cabecalho-login {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.detalhe-amarelo {
+  width: 10px;
+  height: 30px;
+  background-color: #FFD100;
+}
+
+.cabecalho-login h2 {
+  color: #2D68C4;
+  font-size: 22px;
+}
+
+.subtitulo {
+  color: grey;
+  font-style: italic;
+  font-size: 14px;
+  margin-bottom: 30px;
+}
+
+.formulario {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.grupo-input {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  text-align: left;
+}
+
+.grupo-input label {
+  font-size: 12px;
+  font-weight: bold;
+  color: #555;
+}
+
+.grupo-input input {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+}
+
+.grupo-input input:focus {
+  border-color: #2D68C4;
+}
+
+.mensagem-erro {
+  color: red;
+  font-weight: bold;
+  font-size: 14px;
+  text-align: center;
+}
+
+.btn-entrar {
+  background-color: #009640; /* Verde Logo */
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s;
+}
+
+.btn-entrar:hover {
+  background-color: #007a33;
+}

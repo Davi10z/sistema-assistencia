@@ -1,0 +1,76 @@
+.container-declaracao {
+  background-color: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.cabecalho-declaracao {
+  margin-bottom: 30px;
+}
+
+.cabecalho-declaracao h3 {
+  color: #555555;
+  margin-bottom: 5px;
+}
+
+.cabecalho-declaracao p {
+  color: grey;
+  font-size: 14px;
+}
+
+.formulario-declaracao {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.linha-inputs {
+  display: flex;
+  gap: 15px;
+}
+
+.grupo-input {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+
+.grupo-input label {
+  font-size: 12px;
+  font-weight: bold;
+  color: #333333;
+}
+
+.grupo-input input, .grupo-input select {
+  padding: 12px;
+  border: 1px solid #CCCCCC;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: #F0F0F0;
+  outline: none;
+  transition: 0.3s;
+}
+
+.grupo-input input:focus, .grupo-input select:focus {
+  border-color: #2D68C4;
+  background-color: #FFFFFF;
+}
+
+.btn-gerar-pdf {
+  background-color: #009640;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: 0.3s;
+}
+
+.btn-gerar-pdf:hover {
+  background-color: #007a33;
+}

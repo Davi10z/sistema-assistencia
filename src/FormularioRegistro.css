@@ -1,0 +1,116 @@
+.container-formulario {
+  background-color: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.grelha-dupla {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.coluna-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.titulo-sessao {
+  font-size: 14px;
+  font-weight: bold;
+  color: #555555;
+  border-bottom: 2px solid #F0F0F0;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+.linha-dupla {
+  display: flex;
+  gap: 15px;
+}
+
+.grupo-input {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+
+.grupo-input label {
+  font-size: 12px;
+  font-weight: bold;
+  color: #333333;
+}
+
+.grupo-input input, .grupo-input select {
+  padding: 12px;
+  border: 1px solid #CCCCCC;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: #F0F0F0;
+  outline: none;
+  transition: 0.3s;
+}
+
+.grupo-input input:focus, .grupo-input select:focus {
+  border-color: #2D68C4;
+  border-width: 2px;
+  background-color: #FFFFFF;
+}
+
+.grupo-radio {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.grupo-radio label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.botao-salvar {
+  margin-top: 30px;
+  width: 100%;
+  background-color: #009640;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.botao-salvar:hover {
+  background-color: #007a33;
+}
+
+.status-mensagem {
+  margin-top: 15px;
+  padding: 15px;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.status-sucesso {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-erro {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-carregando {
+  background-color: #cce5ff;
+  color: #004085;
+}
