@@ -22,6 +22,20 @@ def conectar():
     return conn
 
 # ==========================================
+# 🚨 A PEÇA QUE FALTAVA: CRIAR AS TABELAS 🚨
+# ==========================================
+def inicializar_banco():
+    conn = conectar()
+    conn.execute('''CREATE TABLE IF NOT EXISTS emissoes (id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT NOT NULL, cpf TEXT, data_requerimento TEXT, data_nascimento TEXT, endereco TEXT, bairro TEXT, zona TEXT, origem TEXT, operador TEXT, data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
+    conn.execute('''CREATE TABLE IF NOT EXISTS listaIdentidades (id INTEGER PRIMARY KEY AUTOINCREMENT, nome_cidadao TEXT, cpf_cidadao TEXT, status TEXT DEFAULT 'Aguardando Retirada', data_chegada TIMESTAMP DEFAULT CURRENT_TIMESTAMP, recebedor TEXT, data_entrega TIMESTAMP)''')
+    conn.commit()
+    conn.close()
+
+# Executa a função toda a vez que o servidor ligar
+inicializar_banco()
+# ==========================================
+
+# ==========================================
 # ROTAS DE LEITURA E CADASTRO MANUAL
 # ==========================================
 @app.get("/api/emissoes")
