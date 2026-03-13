@@ -1,12 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import List
 import sqlite3
 import fitz  # PyMuPDF
 import re
-import os
-import tkinter as tk
-from tkinter import filedialog
 
 app = FastAPI()
 
@@ -24,7 +22,7 @@ def conectar():
     return conn
 
 # ==========================================
-# ROTAS DE LEITURA (GET)
+# ROTAS DE LEITURA E CADASTRO MANUAL
 # ==========================================
 @app.get("/api/emissoes")
 def listar_emissoes():
@@ -40,9 +38,6 @@ def listar_entregas():
     conn.close()
     return [dict(linha) for linha in dados]
 
-# ==========================================
-# ROTA DE CADASTRO MANUAL (POST)
-# ==========================================
 class EmissaoManual(BaseModel):
     nome: str
     cpf: str
@@ -59,9 +54,6 @@ def salvar_manual(dados: EmissaoManual):
     conn.close()
     return {"mensagem": "Atendimento salvo com sucesso!", "sucesso": True}
 
-# ==========================================
-# ROTA DE DAR BAIXA / ENTREGAR RG (PUT)
-# ==========================================
 class Recebedor(BaseModel):
     nome: str
 
@@ -74,67 +66,20 @@ def entregar_rg(id_registro: int, dados: Recebedor):
     return {"mensagem": f"RG entregue para {dados.nome}!", "sucesso": True}
 
 # ==========================================
-# ROTAS MÁGICAS (JANELAS DO WINDOWS E PDF)
+# NOVAS ROTAS DE UPLOAD DE ARQUIVOS (WEB)
 # ==========================================
-@app.get("/api/sincronizar/{operador}")
-def sincronizar_pdfs(operador: str):
-    root = tk.Tk()
-    root.withdraw()
-    root.attributes('-topmost', True) 
-    pasta = filedialog.askdirectory(title="Selecione a pasta com os PDFs")
-    root.destroy()
 
-    if not pasta: return {"mensagem": "Operação cancelada.", "sucesso": False}
-    arquivos_pdf = [os.path.join(pasta, f) for f in os.listdir(pasta) if f.lower().endswith(".pdf")]
-    if not arquivos_pdf: return {"mensagem": "Nenhum PDF encontrado.", "sucesso": False}
-
-    conn = conectar()
-    cursor = conn.cursor()
-    registos_salvos = 0
-    zonas_rurais = ["RIACHO DAS PEDRAS", "LISIEUX", "RAIMUNDO MARTINS", "MACARAÚ", "TRAPIÁ", "LOGRADOURO", "SACO DO BELÉM", "MALHADA GRANDE", "VALPARAÍSO", "SANGRADOURO"]
-
-    for caminho in arquivos_pdf:
-        try:
-            with fitz.open(caminho) as doc:
-                texto_raw = ""
-                for pagina in doc: texto_raw += pagina.get_text("text") + "\n"
-                
-                match_nome = re.search(r'06\.\s*NOME COMPLETO\n(.*?)\n', texto_raw, re.IGNORECASE)
-                nome = match_nome.group(1).strip() if match_nome else "NÃO INFORMADO"
-                if nome == "NÃO INFORMADO": continue
-                
-                cpfs = re.findall(r'(?<!\d)\d{11}(?!\d)', re.sub(r'(?<=\d)[ \t]+(?=\d)', '', texto_raw))
-                cpf = cpfs[0] if cpfs else ""
-                
-                zona = "URBANA"
-                for zr in zonas_rurais:
-                    if zr in texto_raw.upper():
-                        zona = "RURAL"
-                        break
-
-                cursor.execute('''INSERT INTO emissoes (nome, cpf, zona, origem, operador) VALUES (?, ?, ?, ?, ?)''', (nome, cpf, zona, "Sincronizado (Pasta)", operador.upper()))
-                registos_salvos += 1
-        except Exception: continue
-
-    conn.commit()
-    conn.close()
-    return {"mensagem": f"Sucesso! {registos_salvos} RGs sincronizados!", "sucesso": True}
-
-@app.get("/api/importar")
-def importar_lista_governo():
-    root = tk.Tk()
-    root.withdraw()
-    root.attributes('-topmost', True) 
-    caminho_pdf = filedialog.askopenfilename(title="Selecione a Lista do Governo (PDF)", filetypes=[("PDF", "*.pdf")])
-    root.destroy()
-    
-    if not caminho_pdf: return {"mensagem": "Operação cancelada.", "sucesso": False}
-
+# 1. Recebe UM PDF com a Lista do Governo
+@app.post("/api/importar")
+async def importar_lista_governo(arquivo: UploadFile = File(...)):
     dados_extraidos = []
     cpfs_processados = set()
 
     try:
-        with fitz.open(caminho_pdf) as doc:
+        # Lê o ficheiro que veio da internet diretamente para a memória
+        pdf_bytes = await arquivo.read()
+        
+        with fitz.open(stream=pdf_bytes, filetype="pdf") as doc:
             for pagina in doc:
                 palavras = pagina.get_text("words")
                 linhas_dict = {}
@@ -169,8 +114,45 @@ def importar_lista_governo():
                 conn.execute("INSERT INTO listaIdentidades (nome_cidadao, cpf_cidadao, status) VALUES (?, ?, 'Aguardando Retirada')", (nome, cpf))
             conn.commit()
             conn.close()
-            return {"mensagem": f"VITÓRIA! Foram extraídos {len(dados_extraidos)} registos do PDF!", "sucesso": True}
+            return {"mensagem": f"VITÓRIA! Foram importados {len(dados_extraidos)} registos do PDF!", "sucesso": True}
         else:
             return {"mensagem": "Nenhum dado válido encontrado no ficheiro.", "sucesso": False}
     except Exception as e:
         return {"mensagem": f"Erro ao ler PDF: {str(e)}", "sucesso": False}
+
+# 2. Recebe MÚLTIPLOS PDFs para Sincronizar
+@app.post("/api/sincronizar/{operador}")
+async def sincronizar_pdfs(operador: str, arquivos: List[UploadFile] = File(...)):
+    conn = conectar()
+    cursor = conn.cursor()
+    registos_salvos = 0
+    zonas_rurais = ["RIACHO DAS PEDRAS", "LISIEUX", "RAIMUNDO MARTINS", "MACARAÚ", "TRAPIÁ", "LOGRADOURO", "SACO DO BELÉM", "MALHADA GRANDE", "VALPARAÍSO", "SANGRADOURO"]
+
+    for arquivo in arquivos:
+        try:
+            pdf_bytes = await arquivo.read()
+            with fitz.open(stream=pdf_bytes, filetype="pdf") as doc:
+                texto_raw = ""
+                for pagina in doc: texto_raw += pagina.get_text("text") + "\n"
+                
+                match_nome = re.search(r'06\.\s*NOME COMPLETO\n(.*?)\n', texto_raw, re.IGNORECASE)
+                nome = match_nome.group(1).strip() if match_nome else "NÃO INFORMADO"
+                if nome == "NÃO INFORMADO": continue
+                
+                cpfs = re.findall(r'(?<!\d)\d{11}(?!\d)', re.sub(r'(?<=\d)[ \t]+(?=\d)', '', texto_raw))
+                cpf = cpfs[0] if cpfs else ""
+                
+                zona = "URBANA"
+                for zr in zonas_rurais:
+                    if zr in texto_raw.upper():
+                        zona = "RURAL"
+                        break
+
+                cursor.execute('''INSERT INTO emissoes (nome, cpf, zona, origem, operador) VALUES (?, ?, ?, ?, ?)''', (nome, cpf, zona, "Sincronizado (Upload)", operador.upper()))
+                registos_salvos += 1
+        except Exception:
+            continue
+
+    conn.commit()
+    conn.close()
+    return {"mensagem": f"Sucesso! {registos_salvos} RGs extraídos e enviados para a nuvem!", "sucesso": True}

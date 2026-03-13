@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import './CasaCidadao.css';
 
-const API_URL = "http://127.0.0.1:8000/api";
+const API_URL = "https://sistema-assistencia-gmfa.onrender.com";
 
 function CasaCidadao() {
+  const inputSincronizarRef = React.useRef(null);
+  const inputImportarRef = React.useRef(null);
+
   const [subAba, setSubAba] = useState('emissoes');
   const [operador, setOperador] = useState('');
   
@@ -68,25 +71,44 @@ function CasaCidadao() {
     } catch (erro) { alert("Erro ao salvar. O servidor Python está ligado?"); }
   };
 
-  const sincronizarPasta = async () => {
+  const sincronizarPasta = async (e) => {
+    const arquivos = e.target.files;
+    if (!arquivos || arquivos.length === 0) return;
     if (!operador) return alert("Por favor, preencha o Nome do Atendente lá em cima!");
-    alert("Uma janela do Windows vai abrir no servidor para você selecionar a pasta. Aguarde...");
+
+    const formData = new FormData();
+    // Adiciona todos os PDFs selecionados ao pacote de envio
+    for (let i = 0; i < arquivos.length; i++) {
+      formData.append("arquivos", arquivos[i]);
+    }
+
+    alert("A enviar PDFs para a Nuvem. Isso pode demorar uns segundos...");
     try {
-      const resp = await fetch(`${API_URL}/sincronizar/${operador}`);
+      const resp = await fetch(`${API_URL}/sincronizar/${operador}`, { method: 'POST', body: formData });
       const json = await resp.json();
       alert(json.mensagem);
       carregarTabelas();
-    } catch (e) { alert("Erro de comunicação com o servidor."); }
+    } catch (e) { alert("Erro ao enviar arquivos."); }
+    
+    e.target.value = null; // Reseta o input
   };
 
-  const importarLista = async () => {
-    alert("Uma janela do Windows vai abrir no servidor para você selecionar o PDF. Aguarde...");
+  const importarLista = async (e) => {
+    const arquivo = e.target.files[0];
+    if (!arquivo) return;
+
+    const formData = new FormData();
+    formData.append("arquivo", arquivo);
+
+    alert("A enviar Lista do Governo para a Nuvem. Aguarde...");
     try {
-      const resp = await fetch(`${API_URL}/importar`);
+      const resp = await fetch(`${API_URL}/importar`, { method: 'POST', body: formData });
       const json = await resp.json();
       alert(json.mensagem);
       carregarTabelas();
-    } catch (e) { alert("Erro de comunicação com o servidor."); }
+    } catch (e) { alert("Erro ao enviar Lista."); }
+    
+    e.target.value = null; // Reseta o input
   };
 
   const abrirModalEntrega = (id, nomeCidadao) => {
@@ -140,8 +162,8 @@ function CasaCidadao() {
           <div>
             {/* O conteúdo de emissões continua exatamente igual... */}
             <div className="cabecalho-acao">
-              <input type="text" className="input-operador" placeholder="Nome do Atendente / Operador *" value={operador} onChange={e => setOperador(e.target.value)} />
-              <button className="btn-sincronizar" onClick={sincronizarPasta}> Sincronizar PDFs da Pasta </button>
+              <input type="file" multiple accept=".pdf" ref={inputSincronizarRef} style={{ display: 'none' }} onChange={sincronizarPasta} />
+              <button className="btn-sincronizar" onClick={() => inputSincronizarRef.current.click()}> Fazer Upload de PDFs (Sincronizar) </button>
             </div>
 
             <h3 style={{ marginBottom: '15px', color: '#555' }}>Cadastro Manual</h3>
@@ -175,7 +197,8 @@ function CasaCidadao() {
           <div>
             <div className="cabecalho-acao">
               <p style={{ color: 'grey', margin: 0 }}>Importe a lista do Governo (PDF) para atualizar o stock.</p>
-              <button className="btn-sincronizar" style={{ backgroundColor: '#6f42c1' }} onClick={importarLista}> Importar Lista do Governo </button>
+              <input type="file" accept=".pdf" ref={inputImportarRef} style={{ display: 'none' }} onChange={importarLista} />
+              <button className="btn-sincronizar" style={{ backgroundColor: '#6f42c1' }} onClick={() => inputImportarRef.current.click()}> Fazer Upload da Lista (PDF) </button>
             </div>
 
             {/* BOTÕES DE FILTRO */}
