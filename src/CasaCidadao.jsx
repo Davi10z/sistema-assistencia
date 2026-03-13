@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './CasaCidadao.css';
 
-const API_URL = "https://sistema-assistencia-gmfa.onrender.com";
+const API_URL = "https://sistema-assistencia-gmfa.onrender.com/api";
 
 function CasaCidadao() {
   const inputSincronizarRef = React.useRef(null);
